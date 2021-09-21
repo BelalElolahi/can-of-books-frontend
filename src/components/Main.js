@@ -22,18 +22,20 @@ export class Main extends Component {
             email: "BilalE@gmail.com",
             showBooks: false,
             title: '',
+            id:'',
             descriptions: '',
-            status: ''
+            status: '',
+            showForm:false
 
         };
     }
 
 
     componentDidMount() {
-        axios.get(`http://${process.env.REACT_APP_BAKEND_URL}/`)
+        axios.get(`${process.env.REACT_APP_BAKEND_URL}/books`)
             .then(res => {
 
-                console.log(res.data)
+                console.log(res.data,"hello");
                 this.setState({
                     data: res.data,
                     showBooks: true
@@ -77,7 +79,7 @@ export class Main extends Component {
 
         let config = {
             method: "POST",
-            baseURL: `http://${process.env.REACT_APP_BAKEND_URL}`,
+            baseURL: `${process.env.REACT_APP_BAKEND_URL}`,
             url: "/create-book",
             data: {
                 title: this.state.title,
@@ -95,14 +97,20 @@ export class Main extends Component {
 
             console.log(this.state.data); 
              
-        })
+        }).catch(err => {
+            console.log(err);
+            this.setState({
+                showBooks: false
+            });
+
+        });
     }
 
     handelDelete=(id)=>{
         let  bookId=id;
         let config = {
             method: "DELETE",
-            baseURL: `http://${process.env.REACT_APP_BAKEND_URL}`,
+            baseURL: `${process.env.REACT_APP_BAKEND_URL}`,
             url: `/delete-book/${bookId}`
         }
         axios(config).then(response =>{
@@ -112,16 +120,75 @@ export class Main extends Component {
              });
 
              
-        })
+        }).catch(err => {
+            console.log(err);
+            this.setState({
+                showBooks: false
+            });
+
+        });
     }
+
+    handelUpdateForm=(e)=>{
+        e.preventDefault();
+        console.log(this.state.title);
+        console.log(this.state.title);
+            let config = {
+                method: "PUT",
+                baseURL: `${process.env.REACT_APP_BAKEND_URL}`,
+                url:`/update-book/${this.state.id}`,
+                data: {
+                    title: this.state.title,
+                    descriptions: this.state.descriptions,
+                    status: this.state.status,
+                    email: this.state.email
+                }
+                
+            }
+            axios(config).then(response =>{
+                 console.log(response.data, 'There it is ');
+                 this.setState({
+                    data:response.data
+                });
+    
+                console.log(this.state.data); 
+                 
+            }).catch(err => {
+                console.log(err);
+                this.setState({
+                    showBooks: false
+                });
+
+            });
+    
+        }
+    
+        handelUpdate =(bookID,tilte,descriptions,status,email)=>{
+            console.log(tilte);
+           
+            this.setState({
+                 id : bookID,
+                email: email,
+                title:tilte,
+                descriptions:descriptions,
+                status: status,
+                showForm:true
+            })
+
+
+           
+            
+        }
+    
 
 
     render() {
         return (
             <div className="row">
                 {/*<FormBook/>*/}
-
-                <Form onSubmit={this.handelSubmit}>
+                    {
+                        !this.state.showForm ?
+                                    <Form onSubmit={this.handelSubmit}>
                     <Form.Group className="mb-3" controlId="bookTilte">
                         <Form.Label>Title</Form.Label>
                         <Form.Control type="text" placeholder="Enter Title" onChange={this.handelTitel} required />
@@ -137,7 +204,38 @@ export class Main extends Component {
                             <option>Unavailable</option>
 
                         </Form.Select>
+                    </Form.Group>  
+                    
+                    <Button variant="primary" type="submit">
+                        Create Book
+                    </Button>
+                </Form>
+                    :
+                    <Form onSubmit={this.handelUpdateForm}>
+                    <Form.Group className="mb-3" controlId="bookTilte">
+                        <Form.Label>Title</Form.Label>
+                        <Form.Control type="text" value={this.state.title} onChange={this.handelTitel} required />
                     </Form.Group>
+                    <Form.Group className="mb-3" controlId="bookDescription">
+                        <Form.Label>Description</Form.Label>
+                        <Form.Control type="text" value={this.state.descriptions} onChange={this.handelDescription} required/>
+                    </Form.Group>
+                    <Form.Group className="mb-3" controlId="bookStatus">
+                        <Form.Label>Status</Form.Label>
+                        <Form.Select defaultValue={this.state.status} onChange={this.handelstatus}  required >
+                            <option>Available</option>
+                            <option>Unavailable</option>
+
+                        </Form.Select>
+                    </Form.Group>
+                    <Button variant="primary" type="submit">
+                        update
+                    </Button>
+                </Form>
+
+                    
+                    }
+                
 
                     {/*  <Form.Group className="mb-3" controlId="formBasicEmail">
                         <Form.Label>Email address</Form.Label>
@@ -148,10 +246,6 @@ export class Main extends Component {
                     </Form.Group>*/}
 
 
-                    <Button variant="primary" type="submit">
-                        Create Book
-                    </Button>
-                </Form>
 
                 {
                     this.state.showBooks ?
@@ -161,6 +255,7 @@ export class Main extends Component {
                             email={this.state.email} 
                             bookId={itme._id}
                             handelDelete={this.handelDelete}
+                            handelUpdate = {this.handelUpdate}
                             />
                         })
                         :
