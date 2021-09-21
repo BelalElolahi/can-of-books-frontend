@@ -19,6 +19,16 @@ class BestBooks extends Component {
                     <Button variant="danger" type="submit" onClick={()=>this.props.handelDelete(this.props.bookId)} >
                        Delete
                     </Button>
+                    <Button variant="danger" type="submit" onClick={()=>this.props.handelUpdate(
+                        this.props.bookId 
+                        ,this.props.title
+                        ,this.props.descriptions
+                        ,this.props.status
+                        ,this.props.email
+                        )}
+                         >
+                       update
+                    </Button>
                     
                 </Card>
 
