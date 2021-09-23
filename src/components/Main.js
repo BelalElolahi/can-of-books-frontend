@@ -3,11 +3,11 @@ import React, { Component } from 'react';
 import axios from 'axios';
 import BestBooks from './BestBooks';
 import AlertShow from './AlertShow';
-import {
-    Form,
-    Button,
-    Modal
-} from 'react-bootstrap';
+import FormBook from './bookForm';
+import UpdateForm from './UpdateForm';
+import UserProfile  from './UserProfile';
+import { Container } from 'react-bootstrap';
+
 /*import {
     BrowserRouter as Router ,
     Route,
@@ -20,7 +20,7 @@ export class Main extends Component {
         super(props);
         this.state = {
             data: [],
-            email: "BilalE@gmail.com",
+            email: this.props.UserEmail,
             showBooks: false,
             title: '',
             id: '',
@@ -29,7 +29,10 @@ export class Main extends Component {
             showForm: false
 
         };
+        console.log(this.state.email,"there");
     }
+
+   
 
 
     componentDidMount() {
@@ -137,9 +140,11 @@ export class Main extends Component {
 
     handelUpdateForm = (e) => {
         e.preventDefault();
-        console.log(this.state.title);
-        console.log(this.state.title);
-
+        
+        this.setState({
+            title:e.target.title.value
+        });
+        
         let config = {
             method: "PUT",
             baseURL: `${process.env.REACT_APP_BAKEND_URL}`,
@@ -170,7 +175,7 @@ export class Main extends Component {
         e.target.title.value = "";
         e.target.description.value = "";
         e.target.status.value = "";
-        this.setState({showForm: false});
+        this.setState({ showForm: false });
 
     }
 
@@ -191,99 +196,58 @@ export class Main extends Component {
 
     }
 
+    handleClose=()=>{
+        
+        this.setState({
+            showForm:false
+        });
+
+    }
+
 
 
     render() {
         return (
+           <Container>
+            
+            
             <div className="row">
-                {/*<FormBook/>*/}
-                {
-                    !this.state.showForm ?
-                        <Form onSubmit={this.handelSubmit}>
-                            <Form.Group className="mb-3" controlId="bookTilte">
-                                <Form.Label>Title</Form.Label>
-                                <Form.Control type="text" placeholder="Enter Title" onChange={this.handelTitel} required name="title" />
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="bookDescription">
-                                <Form.Label>Description</Form.Label>
-                                <Form.Control type="text" placeholder="Description" onChange={this.handelDescription} name="description" required />
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="bookStatus">
-                                <Form.Label>Status</Form.Label>
-                                <Form.Select onChange={this.handelstatus} required name="status">
-                                    <option>Available</option>
-                                    <option>Unavailable</option>
+            <UserProfile name={this.props.name}
+                    email={this.props.email}
+                    picture={this.props.picture} />
+                
+                {!this.state.showForm ?
+                    <FormBook handelSubmit={this.handelSubmit}
+                        handelTitel={this.handelTitel}
+                        handelDescription={this, this.handelDescription}
+                        handelstatus={this.handelstatus} />
+                    :
 
-                                </Form.Select>
-                            </Form.Group>
-
-                            <Button variant="primary" type="submit">
-                                Create Book
-                            </Button>
-                        </Form>
-                        :
-                        <Modal.Dialog>
-                            <Modal.Header onClick={()=>{this.setState({showForm: false})}}>
-                                <Modal.Title>Modal title</Modal.Title>
-                            </Modal.Header>
-
-                            <Modal.Body>
-                            <Form onSubmit={this.handelUpdateForm}>
-                            <Form.Group className="mb-3" controlId="bookTilte">
-                                <Form.Label>Title</Form.Label>
-                                <Form.Control type="text" value={this.state.title} onChange={this.handelTitel} required name="title" />
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="bookDescription">
-                                <Form.Label>Description</Form.Label>
-                                <Form.Control type="text" value={this.state.descriptions} onChange={this.handelDescription} required name="description"/>
-                            </Form.Group>
-                            <Form.Group className="mb-3" controlId="bookStatus">
-                                <Form.Label>Status</Form.Label>
-                                <Form.Select defaultValue={this.state.status} onChange={this.handelstatus} required name="status" >
-                                    <option>Available</option>
-                                    <option>Unavailable</option>
-
-                                </Form.Select>
-                            </Form.Group>
-                            <Button variant="secondary" onClick={()=>{this.setState({showForm: false})}}>Close</Button>
-                            <Button variant="primary" type="submit"  >
-                            Save changes
-                            </Button>
-                        </Form>
-                            </Modal.Body>
-                        </Modal.Dialog>
-
-
-
-                }
-
-
-                {/*  <Form.Group className="mb-3" controlId="formBasicEmail">
-                        <Form.Label>Email address</Form.Label>
-                        <Form.Control type="email" placeholder="Enter email" />
-                        <Form.Text className="text-muted">
-                            We'll never share your email with anyone else.
-                        </Form.Text>
-                    </Form.Group>*/}
-
-
-
-                {
-                    this.state.showBooks ?
+                    <UpdateForm handelUpdateForm={this.handelUpdateForm}
+                        handelTitel={this.handelTitel}
+                        handelDescription={this, this.handelDescription}
+                        handelstatus={this.handelstatus}
+                        handleClose={this.handleClose}
+                        title={this.state.title} descriptions={this.state.descriptions}
+                        status={this.state.status} showForm={this.state.showForm} />}
+            </div>
+            <div className= "row">
+                    {this.state.showBooks ?
                         this.state.data.map(itme => {
                             return <BestBooks title={itme.title}
                                 descriptions={itme.descriptions}
                                 email={this.state.email}
                                 bookId={itme._id}
                                 handelDelete={this.handelDelete}
-                                handelUpdate={this.handelUpdate}
-                            />
+                                handelUpdate={this.handelUpdate} />;
                         })
                         :
 
-                        <AlertShow />
-                }
-            </div>
+                        <AlertShow />}
+
+                </div></Container>
+               
+            
         )
     }
 }
